@@ -14,7 +14,6 @@ export default function Marketplace(props) {
         const items = await Promise.all(transaction.map(async i => {
             const tokenURI = await contract.tokenURI(i.tokenId);
 
-            // let meta = await axios.get(tokenURI);
             console.log("tokenURI", tokenURI)
 
             let meta = await axios(tokenURI, {

@@ -27,10 +27,10 @@ function Navibar(props) {
                     <Navbar.Collapse id="responsive-navbar-nav">
                         <Nav className="me-auto">
                             {connected ? (<><Nav.Link as={Link} to="/">Marketplace</Nav.Link>
-                                <Nav.Link as={Link} to="/sellNFT">List My NFT</Nav.Link>
+                                <Nav.Link as={Link} to="/sellNFT">Create Your NFT</Nav.Link>
                                 <Nav.Link as={Link} to="/profile">Profile</Nav.Link></>) :
                                 (<><Nav.Link as={Link} to="/">Marketplace</Nav.Link>
-                                    <Nav.Link as={Link} to="/">List My NFT</Nav.Link>
+                                    <Nav.Link as={Link} to="/">Create Your NFT</Nav.Link>
                                     <Nav.Link as={Link} to="/">Profile</Nav.Link></>)}
                         </Nav>
                         <Nav>

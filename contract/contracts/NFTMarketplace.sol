@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
@@ -13,7 +13,7 @@ contract NFTMarketplace is ERC721URIStorage {
     Counters.Counter private _tokenIds;
     Counters.Counter private _itemsSold;
 
-    address payable owner;
+    address payable public owner;
     uint256 listPrice = 0.01 ether;
 
     struct ListedToken {
@@ -21,8 +21,8 @@ contract NFTMarketplace is ERC721URIStorage {
         address payable owner;
         address payable seller;
         uint256 price;
-        bool currentlyListed;
         uint256 royaltyPercentage;
+        bool currentlyListed;
     }
 
     event TokenListedSuccess (
@@ -30,15 +30,23 @@ contract NFTMarketplace is ERC721URIStorage {
         address owner,
         address seller,
         uint256 price,
-        bool currentlyListed,
-        uint256 royaltyPercentage
+        uint256 royaltyPercentage,
+        bool currentlyListed
     );
 
     mapping(uint256 => ListedToken) private idToListedToken;
-    mapping(uint256 => uint256) public tokenRoyalties;
 
     constructor() ERC721("NFTMarketplace", "NFTM") {
         owner = payable(msg.sender);
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only the owner can call this function");
+        _;
+    }
+
+    function transferOwnership(address payable newOwner) public onlyOwner {
+        owner = newOwner;
     }
 
     function updateListPrice(uint256 _listPrice) public payable {
@@ -66,7 +74,7 @@ contract NFTMarketplace is ERC721URIStorage {
     function createToken(string memory tokenURI, uint256 price, uint256 royaltyPercentage) public payable returns (uint) {
         require(msg.value == listPrice, "Incorrect listing price");
         require(price > 0, "Price must be greater than 0");
-        require(royaltyPercentage <= 100, "Royalty percentage cannot exceed 100%");
+        require(royaltyPercentage <= 100, "Royalty percentage must be <= 100");
 
         _tokenIds.increment();
         uint256 newTokenId = _tokenIds.current();
@@ -85,8 +93,8 @@ contract NFTMarketplace is ERC721URIStorage {
             payable(address(this)),
             payable(msg.sender),
             price,
-            true,
-            royaltyPercentage
+            royaltyPercentage,
+            true
         );
 
         _transfer(msg.sender, address(this), tokenId);
@@ -96,18 +104,18 @@ contract NFTMarketplace is ERC721URIStorage {
             address(this),
             msg.sender,
             price,
-            true,
-            royaltyPercentage
+            royaltyPercentage,
+            true
         );
     }
-    
+
     function getAllNFTs() public view returns (ListedToken[] memory) {
         uint nftCount = _tokenIds.current();
         ListedToken[] memory tokens = new ListedToken[](nftCount);
         uint currentIndex = 0;
         uint currentId;
 
-        for(uint i=0; i<nftCount; i++) {
+        for (uint i = 0; i < nftCount; i++) {
             currentId = i + 1;
             ListedToken storage currentItem = idToListedToken[currentId];
             tokens[currentIndex] = currentItem;
@@ -116,23 +124,24 @@ contract NFTMarketplace is ERC721URIStorage {
 
         return tokens;
     }
-    
+
     function getMyNFTs() public view returns (ListedToken[] memory) {
         uint totalItemCount = _tokenIds.current();
         uint itemCount = 0;
         uint currentIndex = 0;
         uint currentId;
 
-        for(uint i=0; i < totalItemCount; i++) {
-            if(idToListedToken[i+1].owner == msg.sender || idToListedToken[i+1].seller == msg.sender) {
+        for (uint i = 0; i < totalItemCount; i++) {
+            if (idToListedToken[i + 1].owner == msg.sender || idToListedToken[i + 1].seller == msg.sender) {
                 itemCount += 1;
             }
         }
 
         ListedToken[] memory items = new ListedToken[](itemCount);
-        for(uint i=0; i < totalItemCount; i++) {
-            if(idToListedToken[i+1].owner == msg.sender || idToListedToken[i+1].seller == msg.sender) {
-                currentId = i+1;
+
+        for (uint i = 0; i < totalItemCount; i++) {
+            if (idToListedToken[i + 1].owner == msg.sender || idToListedToken[i + 1].seller == msg.sender) {
+                currentId = i + 1;
                 ListedToken storage currentItem = idToListedToken[currentId];
                 items[currentIndex] = currentItem;
                 currentIndex += 1;
@@ -144,30 +153,23 @@ contract NFTMarketplace is ERC721URIStorage {
 
     function executeSale(uint256 tokenId) public payable {
         uint price = idToListedToken[tokenId].price;
+        uint royaltyPercentage = idToListedToken[tokenId].royaltyPercentage;
         address seller = idToListedToken[tokenId].seller;
-        uint256 royaltyPercentage = idToListedToken[tokenId].royaltyPercentage;
 
         require(msg.value == price, "Please submit the asking price in order to complete the purchase");
 
-        uint256 royaltyAmount = (msg.value * royaltyPercentage) / 100;
-        address originalCreator = ownerOf(tokenId);
-        payable(originalCreator).transfer(royaltyAmount);
+        uint256 royalties = (msg.value * royaltyPercentage) / 100;
+        uint256 paymentToSeller = msg.value - royalties;
 
-        idToListedToken[tokenId].currentlyListed = true;
+        idToListedToken[tokenId].currentlyListed = false;
         idToListedToken[tokenId].seller = payable(msg.sender);
         _itemsSold.increment();
 
         _transfer(address(this), msg.sender, tokenId);
-
         approve(address(this), tokenId);
 
         payable(owner).transfer(listPrice);
-        payable(seller).transfer(msg.value - royaltyAmount - listPrice);
-    }
-
-    function setRoyalty(uint256 tokenId, uint256 royaltyPercentage) public {
-        require(msg.sender == ownerOf(tokenId), "Only the NFT creator can set royalty");
-        require(royaltyPercentage <= 100, "Royalty percentage cannot exceed 100%");
-        tokenRoyalties[tokenId] = royaltyPercentage;
+        payable(seller).transfer(paymentToSeller);
+        payable(msg.sender).transfer(royalties);
     }
 }

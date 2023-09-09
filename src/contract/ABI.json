@@ -1,5 +1,5 @@
 {
-    "address": "0x2875D7E664889658867620B03fc5535299972618",
+    "address": "0xcc5257B4302B2e8D01DE2A5fBe2D7532616e347a",
     "abi": [
         {
             "inputs": [],
@@ -218,24 +218,6 @@
             "type": "function"
         },
         {
-            "inputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "tokenId",
-                    "type": "uint256"
-                },
-                {
-                    "internalType": "uint256",
-                    "name": "royaltyPercentage",
-                    "type": "uint256"
-                }
-            ],
-            "name": "setRoyalty",
-            "outputs": [],
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
             "anonymous": false,
             "inputs": [
                 {
@@ -264,15 +246,15 @@
                 },
                 {
                     "indexed": false,
-                    "internalType": "bool",
-                    "name": "currentlyListed",
-                    "type": "bool"
-                },
-                {
-                    "indexed": false,
                     "internalType": "uint256",
                     "name": "royaltyPercentage",
                     "type": "uint256"
+                },
+                {
+                    "indexed": false,
+                    "internalType": "bool",
+                    "name": "currentlyListed",
+                    "type": "bool"
                 }
             ],
             "name": "TokenListedSuccess",
@@ -322,6 +304,19 @@
                 }
             ],
             "name": "transferFrom",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        },
+        {
+            "inputs": [
+                {
+                    "internalType": "address payable",
+                    "name": "newOwner",
+                    "type": "address"
+                }
+            ],
+            "name": "transferOwnership",
             "outputs": [],
             "stateMutability": "nonpayable",
             "type": "function"
@@ -385,14 +380,14 @@
                             "type": "uint256"
                         },
                         {
-                            "internalType": "bool",
-                            "name": "currentlyListed",
-                            "type": "bool"
-                        },
-                        {
                             "internalType": "uint256",
                             "name": "royaltyPercentage",
                             "type": "uint256"
+                        },
+                        {
+                            "internalType": "bool",
+                            "name": "currentlyListed",
+                            "type": "bool"
                         }
                     ],
                     "internalType": "struct NFTMarketplace.ListedToken[]",
@@ -462,14 +457,14 @@
                             "type": "uint256"
                         },
                         {
-                            "internalType": "bool",
-                            "name": "currentlyListed",
-                            "type": "bool"
-                        },
-                        {
                             "internalType": "uint256",
                             "name": "royaltyPercentage",
                             "type": "uint256"
+                        },
+                        {
+                            "internalType": "bool",
+                            "name": "currentlyListed",
+                            "type": "bool"
                         }
                     ],
                     "internalType": "struct NFTMarketplace.ListedToken",
@@ -513,14 +508,14 @@
                             "type": "uint256"
                         },
                         {
-                            "internalType": "bool",
-                            "name": "currentlyListed",
-                            "type": "bool"
-                        },
-                        {
                             "internalType": "uint256",
                             "name": "royaltyPercentage",
                             "type": "uint256"
+                        },
+                        {
+                            "internalType": "bool",
+                            "name": "currentlyListed",
+                            "type": "bool"
                         }
                     ],
                     "internalType": "struct NFTMarketplace.ListedToken",
@@ -571,14 +566,14 @@
                             "type": "uint256"
                         },
                         {
-                            "internalType": "bool",
-                            "name": "currentlyListed",
-                            "type": "bool"
-                        },
-                        {
                             "internalType": "uint256",
                             "name": "royaltyPercentage",
                             "type": "uint256"
+                        },
+                        {
+                            "internalType": "bool",
+                            "name": "currentlyListed",
+                            "type": "bool"
                         }
                     ],
                     "internalType": "struct NFTMarketplace.ListedToken[]",
@@ -621,6 +616,19 @@
                     "internalType": "string",
                     "name": "",
                     "type": "string"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "owner",
+            "outputs": [
+                {
+                    "internalType": "address payable",
+                    "name": "",
+                    "type": "address"
                 }
             ],
             "stateMutability": "view",
@@ -672,25 +680,6 @@
                     "internalType": "string",
                     "name": "",
                     "type": "string"
-                }
-            ],
-            "stateMutability": "view",
-            "type": "function"
-        },
-        {
-            "inputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "",
-                    "type": "uint256"
-                }
-            ],
-            "name": "tokenRoyalties",
-            "outputs": [
-                {
-                    "internalType": "uint256",
-                    "name": "",
-                    "type": "uint256"
                 }
             ],
             "stateMutability": "view",

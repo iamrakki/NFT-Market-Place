@@ -4,10 +4,8 @@ import Col from 'react-bootstrap/Col';
 import { NFTStorage } from "nft.storage";
 const APIKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweEM1YjM4NTU1MEJCNjkyY0Y2QzU2NkQyRDI2MTVlRjNhNjQyMkU3YUYiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTY5MzYzNjk1MDUyNiwibmFtZSI6IlplY3VyZWNoYWluIn0.023TRokXOm6kKwWwctmSuYtmMUikyCxnadwRlYCUnWk';
 
-
-
 export default function SellNFT(props) {
-    const [formParams, updateFormParams] = useState({ name: '', description: '', price: '' });
+    const [formParams, updateFormParams] = useState({ name: '', description: '', price: '', royaltyPercentage: '' });
 
     const ethers = require("ethers");
 
@@ -15,10 +13,8 @@ export default function SellNFT(props) {
     const [tokenURI, setTokenURI] = useState('');
     const [uploadedFile, setUploadedFile] = useState();
     const [check, setCheck] = useState(false)
-    const [royaltyPercentage, setRoyaltyPercentage] = useState('');
 
-
-    //This function uploads the NFT image to IPFS
+    // This function uploads the NFT image to IPFS
     async function OnChangeFile(e) {
         console.log("yep on work")
         var file = e.target.files[0];
@@ -26,13 +22,15 @@ export default function SellNFT(props) {
     }
 
     const uploadNFTContent = async (inputFile) => {
-        const { name, description, price } = formParams;
+        const { name, description, price, royaltyPercentage } = formParams;
         console.log("name", name)
         console.log("price", price)
         console.log("description", description)
+        console.log("royaltyPercentage", royaltyPercentage)
 
-        if (!name || !description || !price || !inputFile)
+        if (!name || !description || !price || !inputFile || !royaltyPercentage)
             return;
+
         console.log("conditions cleared")
         const nftStorage = new NFTStorage({ token: APIKEY, });
         try {
@@ -40,6 +38,7 @@ export default function SellNFT(props) {
                 name: name,
                 description: description,
                 price: price,
+                royaltyPercentage: royaltyPercentage, 
                 image: inputFile
             });
             setTokenURI(getIPFSGatewayURL(metaData.url));
@@ -61,7 +60,7 @@ export default function SellNFT(props) {
         try {
             // Upload the file to IPFS
             setCheck(true);
-            updateMessage("Please wait.. uploading (upto 5 mins)")
+            updateMessage("Please wait.. uploading (up to 5 mins)")
             const metaData = await uploadNFTContent(file);
             console.log("onChange final url", getIPFSGatewayURL(metaData.url));
 
@@ -69,40 +68,26 @@ export default function SellNFT(props) {
             let contract = props.contract;
             console.log("contract", contract);
             console.log("price: ", formParams.price);
-
-            // Convert the user input royaltyPercentage to a number
-            const parsedRoyaltyPercentage = parseInt(royaltyPercentage);
-
-            if (isNaN(parsedRoyaltyPercentage) || parsedRoyaltyPercentage < 0 || parsedRoyaltyPercentage > 100) {
-                // Handle invalid input, e.g., show an error message
-                console.log("Invalid royalty percentage input");
-                return;
-            }
-
+            
             // Massage the params to be sent to the create NFT request
-            const price = ethers.utils.parseUnits(formParams.price, 'ether');
-            let listingPrice = await contract.getListPrice();
-            listingPrice = listingPrice.toString();
+            const price = ethers.utils.parseUnits(formParams.price, 'ether')
+            const royaltyPercentage = parseInt(formParams.royaltyPercentage); 
+            let listingPrice = await contract.getListPrice()
+            listingPrice = listingPrice.toString()
 
-            // Actually create the NFT with the user-defined royalty percentage
-            let transaction = await contract.createToken(
-                getIPFSGatewayURL(metaData.url),
-                price,
-                parsedRoyaltyPercentage,
-                { value: listingPrice }
-            );
-            await transaction.wait();
+            // Actually create the NFT
+            let transaction = await contract.createToken(getIPFSGatewayURL(metaData.url), price, royaltyPercentage, { value: listingPrice }) 
+            await transaction.wait()
 
             alert("Successfully listed your NFT!");
             updateMessage("");
-            updateFormParams({ name: '', description: '', price: '' });
+            updateFormParams({ name: '', description: '', price: '', royaltyPercentage: '' });
             setCheck(false);
         }
         catch (e) {
             console.log("Error during file upload", e);
         }
     }
-
 
     return (
         <div>
@@ -111,7 +96,7 @@ export default function SellNFT(props) {
                     <form>
                         <div class="form-group">
                             <label htmlFor="name">NFT Name</label>
-                            <input id="name" type="text" class="form-control" placeholder="NFT Name" onChange={e => updateFormParams({ ...formParams, name: e.target.value })} value={formParams.name} />
+                            <input id="name" type="text" class="form-control" placeholder="XXXXX" onChange={e => updateFormParams({ ...formParams, name: e.target.value })} value={formParams.name} />
                         </div>
 
                         <div class="form-group">
@@ -125,16 +110,9 @@ export default function SellNFT(props) {
                         </div>
 
                         <div class="form-group">
-                            <label htmlFor="royaltyPercentage">Royalty Percentage (%)</label>
-                            <input
-                                class="form-control"
-                                type="number"
-                                placeholder="Enter royalty percentage"
-                                value={royaltyPercentage}
-                                onChange={e => setRoyaltyPercentage(e.target.value)}
-                            ></input>
+                            <label htmlFor="royaltyPercentage">Royalty Percentage</label>
+                            <input class="form-control" type="number" placeholder="0-100" min="0" max="100" value={formParams.royaltyPercentage} onChange={e => updateFormParams({ ...formParams, royaltyPercentage: e.target.value })}></input>
                         </div>
-
 
                         <div class="form-group">
                             <label htmlFor="image">Upload Image</label>
