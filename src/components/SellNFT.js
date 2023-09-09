@@ -122,7 +122,7 @@ export default function SellNFT(props) {
                         <div class="text-green text-center">{message}</div>
                         <br></br>
                         <div class="d-grid gap-2">
-                            <button disabled={check} onClick={e => listNFT(e, uploadedFile)} class="btn btn-primary">List NFT</button>
+                            <button disabled={check} onClick={e => listNFT(e, uploadedFile)} class="btn btn-primary">Create  NFT</button>
                         </div>
 
                     </form>
