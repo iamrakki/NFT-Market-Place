@@ -1,6 +1,6 @@
 # Getting Started with NFT MARKERT PLACE
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project was  NFT MARKERT PLACE
 
 ## Available Scripts
 
