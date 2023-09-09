@@ -31,6 +31,10 @@ See the section about [deployment](https://facebook.github.io/create-react-app/d
 
 ## Screenshot of Testing 👀
 
+![Screesnshots](Screenshots/Screenshot3.png)
+
+![Screesnshots](Screenshots/Screenshot2.png)
+
 ![Screesnshots](Screenshots/Screenshot1.png)
 
 
